@@ -1,3 +1,4 @@
+require("dotenv").config();
 console.log("🔥 discordBot.js is running");
 const { Client, GatewayIntentBits } = require("discord.js");
 
