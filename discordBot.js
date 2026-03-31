@@ -14,6 +14,8 @@ client.once("ready", () => {
   console.log(`🤖 Bot logged in as ${client.user.tag}`);
 });
 
+console.log("token", process.env.DISCORD_BOT_TOKEN);
+
 async function loginWithTimeout(timeout = 10000) {
   return Promise.race([
     client.login(process.env.DISCORD_BOT_TOKEN),
