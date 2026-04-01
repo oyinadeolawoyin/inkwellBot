@@ -1,6 +1,6 @@
-if (process.env.NODE_ENV !== "production") {
-  require("dotenv").config();
-}
+// if (process.env.NODE_ENV !== "production") {
+//   require("dotenv").config();
+// }
 
 console.log("🔥 discordBot.js is running");
 const { Client, GatewayIntentBits } = require("discord.js");
