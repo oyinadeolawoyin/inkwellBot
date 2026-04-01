@@ -1,6 +1,6 @@
-// if (process.env.NODE_ENV !== "production") {
-//   require("dotenv").config();
-// }
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
 
 console.log("🔥 discordBot.js is running");
 const { Client, GatewayIntentBits } = require("discord.js");
@@ -13,7 +13,7 @@ const client = new Client({
   ]
 });
 
-client.once("ready", () => {
+client.once("clientReady", () => {
   console.log(`🤖 Bot logged in as ${client.user.tag}`);
 });
 
@@ -53,7 +53,7 @@ setTimeout(() => {
 // 👇 Wait for bot readiness
 async function waitForReady() {
   if (client.isReady()) return;
-  await new Promise(resolve => client.once("ready", resolve));
+  await new Promise(resolve => client.once("clientReady", resolve));
 }
 
 async function sendBotMessage(channelId, embed) {
