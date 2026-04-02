@@ -20,14 +20,33 @@ async function notifyGroupSprintEnded({ username, groupSprintId, totalWordsWritt
   const embed = new EmbedBuilder()
     .setColor(0xf97316)
     .setTitle("🏁 Group Sprint wrapped up!")
-    .setDescription(`**${username}**'s sprint just ended.`)
-    .addFields(
-      { name: "📝 Total Words Written", value: `${totalWordsWritten ?? 0}`, inline: true },
-    )
+    .setDescription(`**${username}**'s sprint just ended. Thanks to everyone who showed for the sprint.`)
+    // .addFields(
+    //   { name: "📝 Total Words Written", value: `${totalWordsWritten ?? 0}`, inline: true },
+    // )
     .setURL(`https://inkwellinky.vercel.app/group-sprint/${groupSprintId}`)
     .setTimestamp();
 
   await sendBotMessage(process.env.DISCORD_CHANNEL_ID, embed);
 }
 
-module.exports = { notifyGroupSprintStarted, notifyGroupSprintEnded };
+// 🆕 Called when a member checks out — posts to daily drop channel
+async function notifyMemberCheckedOut({ username, wordsWritten, groupSprintId }) {
+  // Format: 2/04/26 (600)
+  const now = new Date();
+  const day = now.getDate();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const year = String(now.getFullYear()).slice(-2);
+  const dateStr = `${day}/${month}/${year}`;
+
+  const embed = new EmbedBuilder()
+    .setColor(0x818cf8)
+    .setAuthor({ name: username })
+    .setDescription(`${dateStr}💧(${wordsWritten ?? 0})`)
+    .setURL(`https://inkwellinky.vercel.app/group-sprint/${groupSprintId}`)
+    .setTimestamp();
+
+  await sendBotMessage(process.env.DISCORD_DAILY_DROP_CHANNEL_ID, embed);
+}
+
+module.exports = { notifyGroupSprintStarted, notifyGroupSprintEnded, notifyMemberCheckedOut };

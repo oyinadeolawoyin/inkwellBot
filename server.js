@@ -34,6 +34,17 @@ app.post("/notify/sprint-ended", requireSecret, async (req, res) => {
   }
 });
 
+app.post("/notify/member-checked-out", requireSecret, async (req, res) => {
+  const { username, wordsWritten, groupSprintId } = req.body;
+  try {
+    await notifyMemberCheckedOut({ username, wordsWritten, groupSprintId });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("notify member-checked-out error:", err);
+    res.status(500).json({ error: "Failed to send" });
+  }
+});
+
 function startServer() {
   const PORT = process.env.PORT || 3001;
   app.listen(PORT, () => console.log(`🌐 Bot HTTP server listening on port ${PORT}`));
