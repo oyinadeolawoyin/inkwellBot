@@ -1,5 +1,5 @@
 const express = require("express");
-const { notifyGroupSprintStarted, notifyGroupSprintEnded } = require("./notifyService");
+const { notifyGroupSprintStarted, notifyGroupSprintEnded, notifyMemberCheckedOut } = require("./notifyService");
 
 const app = express();
 app.use(express.json());
