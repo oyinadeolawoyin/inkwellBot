@@ -87,7 +87,7 @@ if (process.env.NODE_ENV !== "production") {
     await interaction.deferReply();
   
     try {
-      const res = await fetch(`${process.env.INKWELL_API_URL}/group-sprints`, {
+      const res = await fetch(`${process.env.INKWELL_API_URL}/group-sprints/startGroupSprint`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -135,7 +135,7 @@ if (process.env.NODE_ENV !== "production") {
       // GET /soundscapes is public — no auth needed per your soundscaperoutes.js
       const [soundscapesRes, sprintRes] = await Promise.all([
         fetch(`${process.env.INKWELL_API_URL}/soundscapes`),
-        fetch(`${process.env.INKWELL_API_URL}/group-sprints/active?limit=1`, {
+        fetch(`${process.env.INKWELL_API_URL}/group-sprints/activeGroupSprints?limit=1`, {
           headers: { Authorization: `Bearer ${process.env.INKWELL_BOT_TOKEN}` },
         }),
       ]);

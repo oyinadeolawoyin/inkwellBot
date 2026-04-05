@@ -1,23 +1,30 @@
 const { Client, GatewayIntentBits } = require("discord.js");
+const { registerCommands, handleSlashCommand } = require("./slashcommand");
+// const { startDailyScheduler } = require("./dailyScheduler"); // uncomment when ready
 
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent
-  ]
+    GatewayIntentBits.MessageContent,
+  ],
 });
 
-client.once("clientReady", () => {
+client.once("ready", async () => {
   console.log(`🤖 Bot logged in as ${client.user.tag}`);
+  await registerCommands();
+  // startDailyScheduler(); // uncomment when ready
 });
+
+// Route all slash commands through the handler
+client.on("interactionCreate", handleSlashCommand);
 
 async function loginWithTimeout(timeout = 10000) {
   return Promise.race([
     client.login(process.env.DISCORD_BOT_TOKEN),
     new Promise((_, reject) =>
       setTimeout(() => reject(new Error("Login timeout")), timeout)
-    )
+    ),
   ]);
 }
 
@@ -30,7 +37,7 @@ async function loginWithRetry(retries = 5) {
     console.error("❌ Login failed:", err.message);
     if (retries > 0) {
       console.log(`🔄 Retrying in 5s... (${retries})`);
-      await new Promise(res => setTimeout(res, 5000));
+      await new Promise((res) => setTimeout(res, 5000));
       return loginWithRetry(retries - 1);
     } else {
       console.error("💀 Could not connect to Discord");
@@ -40,14 +47,14 @@ async function loginWithRetry(retries = 5) {
 
 async function waitForReady() {
   if (client.isReady()) return;
-  await new Promise(resolve => client.once("clientReady", resolve));
+  await new Promise((resolve) => client.once("ready", resolve));
 }
 
 async function sendBotMessage(channelId, embed) {
   await waitForReady();
   try {
     const channel = await client.channels.fetch(channelId);
-    if (!channel) return console.error("Channel not found");
+    if (!channel) return console.error("Channel not found:", channelId);
     await channel.send({ embeds: [embed] });
   } catch (err) {
     console.error("Bot send error:", err);
