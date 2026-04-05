@@ -1,14 +1,68 @@
-if (process.env.NODE_ENV !== "production") {
-  require("dotenv").config();
+const { Client, GatewayIntentBits } = require("discord.js");
+const { registerCommands, handleSlashCommand } = require("./slashcommand");
+// const { startDailyScheduler } = require("./dailyScheduler");
+
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+  ],
+});
+
+client.once("ready", async () => {
+  console.log(`🤖 Bot logged in as ${client.user.tag}`);
+
+  // Register slash commands on ready
+  await registerCommands();
+
+  // Start daily scheduler
+  startDailyScheduler();
+});
+
+// Route all slash commands through the handler
+client.on("interactionCreate", handleSlashCommand);
+
+async function loginWithTimeout(timeout = 10000) {
+  return Promise.race([
+    client.login(process.env.DISCORD_BOT_TOKEN),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Login timeout")), timeout)
+    ),
+  ]);
 }
 
-console.log("🔥 discordBot.js is running");
+async function loginWithRetry(retries = 5) {
+  try {
+    console.log("🔌 Attempting to connect to Discord...");
+    await loginWithTimeout();
+    console.log("🚀 Login attempt sent");
+  } catch (err) {
+    console.error("❌ Login failed:", err.message);
+    if (retries > 0) {
+      console.log(`🔄 Retrying in 5s... (${retries})`);
+      await new Promise((res) => setTimeout(res, 5000));
+      return loginWithRetry(retries - 1);
+    } else {
+      console.error("💀 Could not connect to Discord");
+    }
+  }
+}
 
-const { loginWithRetry } = require("./botClient");
-const { startServer } = require("./server");
+async function waitForReady() {
+  if (client.isReady()) return;
+  await new Promise((resolve) => client.once("ready", resolve));
+}
 
-// Start HTTP server immediately
-startServer();
+async function sendBotMessage(channelId, embed) {
+  await waitForReady();
+  try {
+    const channel = await client.channels.fetch(channelId);
+    if (!channel) return console.error("Channel not found:", channelId);
+    await channel.send({ embeds: [embed] });
+  } catch (err) {
+    console.error("Bot send error:", err);
+  }
+}
 
-// Start Discord bot after short delay
-setTimeout(() => loginWithRetry(), 5000);
+module.exports = { client, loginWithRetry, sendBotMessage };
