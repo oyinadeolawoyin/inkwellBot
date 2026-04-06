@@ -21,28 +21,27 @@ async function notifyGroupSprintStarted({ username, duration, soundscape, groupS
 // ─── Sprint ended — fetches member list and tags everyone ─────
 
 async function notifyGroupSprintEnded({ username, groupSprintId, totalWordsWritten }) {
-  // Fetch the full group sprint from Inkwell to get the list of members who joined
   let mentionLine = "";
 
   try {
+    // Uses bot secret now — no JWT needed, and discordId is included in the user select
     const res = await fetch(
-      `${process.env.INKWELL_API_URL}/group-sprints/${groupSprintId}`,
+      `${process.env.INKWELL_API_URL}/group-sprints/bot/${groupSprintId}`,
       {
-        headers: { Authorization: `Bearer ${process.env.INKWELL_BOT_TOKEN}` },
+        headers: { "x-bot-secret": process.env.BOT_SECRET },
       }
     );
 
     if (res.ok) {
       const { groupSprint } = await res.json();
 
-      // sprints[] holds everyone who joined — each has a discordId if they've linked
-      // their account. We mention those we can and list usernames for the rest.
       if (groupSprint?.sprints?.length > 0) {
         const mentions = groupSprint.sprints.map((s) => {
           if (s.user?.discordId) {
+            // Properly mention them in Discord — they'll get a ping
             return `<@${s.user.discordId}>`;
           }
-          // Fallback: mention by Inkwell username if no Discord ID linked
+          // Fallback for site-only users with no Discord linked
           return `**${s.user?.username ?? "a writer"}**`;
         });
 
@@ -51,7 +50,7 @@ async function notifyGroupSprintEnded({ username, groupSprintId, totalWordsWritt
     }
   } catch (err) {
     console.error("Failed to fetch sprint members for tagging:", err);
-    // Non-fatal — we still send the end notification, just without tags
+    // Non-fatal — notification still sends, just without mentions
   }
 
   const embed = new EmbedBuilder()
@@ -59,9 +58,9 @@ async function notifyGroupSprintEnded({ username, groupSprintId, totalWordsWritt
     .setTitle("🏁 Sprint's a wrap!")
     .setDescription(
       `**${username}**'s sprint just ended. Amazing work everyone who showed up! 🌱\n\n` +
-        (mentionLine
-          ? `${mentionLine}\n\nThe sprint has come to an end — please log in your word count to check out!`
-          : "The sprint has come to an end — please log in your word count to check out!")
+      (mentionLine
+        ? `${mentionLine}\n\nThe sprint has come to an end — please log in your word count to check out!`
+        : "The sprint has come to an end — please log in your word count to check out!")
     )
     .setURL(`https://inkwellinky.vercel.app/group-sprint/${groupSprintId}`)
     .setTimestamp();
@@ -69,10 +68,9 @@ async function notifyGroupSprintEnded({ username, groupSprintId, totalWordsWritt
   await sendBotMessage(process.env.DISCORD_CHANNEL_ID, embed);
 }
 
-// ─── Member checked out — posts to daily drop channel ─────────
+// ─── Member checked out — posts to daily drop channel ────────
 
 async function notifyMemberCheckedOut({ username, wordsWritten, groupSprintId }) {
-  // Format: 5/04/26 (600)
   const now = new Date();
   const day = now.getDate();
   const month = String(now.getMonth() + 1).padStart(2, "0");
