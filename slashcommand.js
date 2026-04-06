@@ -72,7 +72,10 @@ if (process.env.NODE_ENV !== "production") {
   // ─── Resolve or create Inkwell user from Discord identity ─────
   
   async function resolveInkwellUser(discordId, username) {
-    const res = await fetch(`${process.env.INKWELL_API_URL}/auth/discord/bot/upsert`, {
+    const url = `${process.env.INKWELL_API_URL}/auth/discord/bot/upsert`;
+    console.log("🔍 Resolving user at:", url); // 👈 add this temporarily
+    
+    const res = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -81,6 +84,8 @@ if (process.env.NODE_ENV !== "production") {
       body: JSON.stringify({ discordId, username }),
     });
   
+    console.log("🔍 Upsert response status:", res.status); // 👈 and this
+    
     if (res.status === 409) throw new Error("LINK_REQUIRED");
     if (!res.ok) throw new Error("Failed to resolve user");
   
