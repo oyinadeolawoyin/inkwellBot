@@ -26,7 +26,7 @@ async function notifyGroupSprintEnded({ username, groupSprintId, totalWordsWritt
   try {
     // Uses bot secret now — no JWT needed, and discordId is included in the user select
     const res = await fetch(
-      `${process.env.INKWELL_API_URL}/group-sprints/bot/${groupSprintId}`,
+      `${process.env.INKWELL_API_URL}/sprint/bot/${groupSprintId}`,
       {
         headers: { "x-bot-secret": process.env.BOT_SECRET },
       }

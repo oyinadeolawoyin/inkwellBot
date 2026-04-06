@@ -131,7 +131,7 @@ if (process.env.NODE_ENV !== "production") {
         interaction.user.username
       );
   
-      const res = await fetch(`${process.env.INKWELL_API_URL}/group-sprints/bot/startGroupSprint`, {
+      const res = await fetch(`${process.env.INKWELL_API_URL}/sprint/bot/startGroupSprint`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -175,7 +175,7 @@ if (process.env.NODE_ENV !== "production") {
     try {
       const [soundscapesRes, sprintRes] = await Promise.all([
         fetch(`${process.env.INKWELL_API_URL}/soundscapes`),
-        fetch(`${process.env.INKWELL_API_URL}/group-sprints/activeGroupSprints?limit=1`),
+        fetch(`${process.env.INKWELL_API_URL}/sprint/activeGroupSprints?limit=1`),
       ]);
   
       if (!soundscapesRes.ok) throw new Error("Failed to fetch soundscapes");
@@ -237,7 +237,7 @@ if (process.env.NODE_ENV !== "production") {
         interaction.user.username
       );
   
-      const joinRes = await fetch(`${process.env.INKWELL_API_URL}/group-sprints/bot/join`, {
+      const joinRes = await fetch(`${process.env.INKWELL_API_URL}/sprint/bot/join`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
