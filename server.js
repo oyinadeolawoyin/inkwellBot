@@ -1,5 +1,10 @@
 const express = require("express");
-const { notifyGroupSprintStarted, notifyGroupSprintEnded, notifyMemberCheckedOut, notifyMemberCheckedIn } = require("./notifyService");
+const {
+  notifyGroupSprintStarted,
+  notifyGroupSprintEnded,
+  notifyMemberCheckedIn,
+  notifyMemberCheckedOut,
+} = require("./notifyService");
 
 const app = express();
 app.use(express.json());
@@ -12,10 +17,12 @@ function requireSecret(req, res, next) {
   next();
 }
 
+// ─── Endpoints ────────────────────────────────────────────────
+
 app.post("/notify/sprint-started", requireSecret, async (req, res) => {
-  const { username, duration, soundscape, groupSprintId } = req.body;
+  const { username, duration, groupSprintId } = req.body;
   try {
-    await notifyGroupSprintStarted({ username, duration, soundscape, groupSprintId });
+    await notifyGroupSprintStarted({ username, duration, groupSprintId });
     res.json({ ok: true });
   } catch (err) {
     console.error("notify sprint-started error:", err);
@@ -24,9 +31,9 @@ app.post("/notify/sprint-started", requireSecret, async (req, res) => {
 });
 
 app.post("/notify/sprint-ended", requireSecret, async (req, res) => {
-  const { username, groupSprintId, totalWordsWritten } = req.body;
+  const { groupSprintId, totalWordsWritten } = req.body;
   try {
-    await notifyGroupSprintEnded({ username, groupSprintId, totalWordsWritten });
+    await notifyGroupSprintEnded({ groupSprintId, totalWordsWritten });
     res.json({ ok: true });
   } catch (err) {
     console.error("notify sprint-ended error:", err);
@@ -55,6 +62,8 @@ app.post("/notify/member-checked-out", requireSecret, async (req, res) => {
     res.status(500).json({ error: "Failed to send" });
   }
 });
+
+// ─── Start ────────────────────────────────────────────────────
 
 function startServer() {
   const PORT = process.env.PORT || 3001;
