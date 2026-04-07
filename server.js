@@ -1,5 +1,5 @@
 const express = require("express");
-const { notifyGroupSprintStarted, notifyGroupSprintEnded, notifyMemberCheckedOut } = require("./notifyService");
+const { notifyGroupSprintStarted, notifyGroupSprintEnded, notifyMemberCheckedOut, notifyMemberCheckedIn } = require("./notifyService");
 
 const app = express();
 app.use(express.json());
@@ -30,6 +30,17 @@ app.post("/notify/sprint-ended", requireSecret, async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error("notify sprint-ended error:", err);
+    res.status(500).json({ error: "Failed to send" });
+  }
+});
+
+app.post("/notify/member-checked-in", requireSecret, async (req, res) => {
+  const { username, startWords, groupSprintId } = req.body;
+  try {
+    await notifyMemberCheckedIn({ username, startWords, groupSprintId });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("notify member-checked-in error:", err);
     res.status(500).json({ error: "Failed to send" });
   }
 });
